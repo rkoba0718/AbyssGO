@@ -16,7 +16,7 @@ struct CHARGES_LIST
 bool isNumber(const std::string &);
 int input(const std::string &);
 std::pair<int, std::vector<int>> calculate_charge_stones(int);
-void output_stones(int);
+int calculate_get_stones(std::vector<int>);
 
 /*
 	課金にかかる金額と得られる聖晶石の個数の組み
@@ -37,7 +37,9 @@ int main()
 	before_stones = input("現在保有している聖晶石の個数を入力してください: ");
 
 	auto result = calculate_charge_stones(after_stones - before_stones);
+	int stones = calculate_get_stones(result.second);
 	std::cout << "最低の値段: " << result.first << "円\n";
+	std::cout << "得られる聖晶石の個数: " << stones << "個\n";
 	std::cout << "購入パターン:\n";
 	for (int i = 0; i < LIST_SIZE; ++i)
 	{
@@ -131,7 +133,7 @@ std::pair<int, std::vector<int>> calculate_charge_stones(int required_stones)
 	}
 
 	int minumum_charges = dp_table[LIST_SIZE - 1][required_stones];
-	std::vector<int> charges_patterns(5, 0);
+	std::vector<int> charges_patterns(LIST_SIZE, 0);
 
 	for (int i = LIST_SIZE - 1; i >= 0; i--)
 	{
@@ -144,4 +146,22 @@ std::pair<int, std::vector<int>> calculate_charge_stones(int required_stones)
 	}
 
 	return {dp_table[LIST_SIZE - 1][required_stones], charges_patterns};
+}
+
+/*
+	calculate_get_stones関数
+	引数：std::vector<int>
+	戻り値：int
+	得られる聖晶石の個数を計算する関数。
+*/
+int calculate_get_stones(std::vector<int> charges)
+{
+	int stones = 0;
+
+	for (int i = 0; i < LIST_SIZE; i++)
+	{
+		stones += charges[i] * charges_list[i].num;
+	}
+
+	return stones;
 }
