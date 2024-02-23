@@ -105,34 +105,35 @@ int input(const std::string &str)
 */
 std::pair<int, std::vector<int>> calculate_charge_stones(int required_stones)
 {
-	std::vector<std::vector<int>> dp_table(LIST_SIZE, std::vector<int>(required_stones + 1, INFINITY));
-	dp_table[0][0] = 0;
+	std::vector<std::vector<int>> dp(LIST_SIZE, std::vector<int>(required_stones + 1, INFINITY));
+	dp[0][0] = 0;
 	for (int i = 1; i <= required_stones; i++)
 	{
-		dp_table[0][i] = ((i - 1) / charges_list[0].num + 1) * charges_list[0].price;
+		dp[0][i] = ((i - 1) / charges_list[0].num + 1) * charges_list[0].price;
 	}
 
-	for (int j = 1; j < LIST_SIZE; j++)
+	for (int i = 1; i < LIST_SIZE; i++)
 	{
-		for (int i = 1; i <= required_stones; i++)
+		for (int j = 1; j <= required_stones; j++)
 		{
-			dp_table[j][i] = dp_table[j - 1][i];
-			int num_tb_j = 1;
-			int rem;
-			do
+			dp[i][j] = dp[i - 1][j];
+			for (int k = 1; k <= j; k++)
 			{
-				rem = i - num_tb_j * charges_list[j].num;
-				int tmp_price = dp_table[j - 1][rem < 0 ? 0 : rem] + num_tb_j * charges_list[j].price;
-				if (tmp_price < dp_table[j][i])
+				int rem = j - k * charges_list[i].num;
+				int tmp_price = dp[i - 1][rem < 0 ? 0 : rem] + k * charges_list[i].price;
+				if (tmp_price < dp[i][j])
 				{
-					dp_table[j][i] = tmp_price;
+					dp[i][j] = tmp_price;
 				}
-				num_tb_j++;
-			} while (rem > 0);
+				if (rem < 0)
+				{
+					break;
+				}
+			}
 		}
 	}
 
-	int minumum_charges = dp_table[LIST_SIZE - 1][required_stones];
+	int minumum_charges = dp[LIST_SIZE - 1][required_stones];
 	std::vector<int> charges_patterns(LIST_SIZE, 0);
 
 	for (int i = LIST_SIZE - 1; i >= 0; i--)
@@ -145,7 +146,7 @@ std::pair<int, std::vector<int>> calculate_charge_stones(int required_stones)
 		minumum_charges -= charges_patterns[i] * charges_list[i].price;
 	}
 
-	return {dp_table[LIST_SIZE - 1][required_stones], charges_patterns};
+	return {dp[LIST_SIZE - 1][required_stones], charges_patterns};
 }
 
 /*
